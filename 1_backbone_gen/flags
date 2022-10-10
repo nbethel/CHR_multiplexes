@@ -1,0 +1,35 @@
+-beta
+#### remodel flags ####
+-mh:path:scores_BB_BB /home/nbethel/TJ_DBs/motifs/xs_bb_ss_FILV_FILV_resl0.5_smooth1.3_msc0.3_mbv1.0/xs_bb_ss_FILV_FILV_resl0.5_smooth1.3_msc0.3_mbv1.0
+-indexed_structure_store:fragment_store /home/nbethel/TJ_DBs/hdf5/ss_grouped_vall_helix_shortLoop.h5
+
+-s ../dummy1.pdb
+-no_optH false
+-flip_HNQ
+
+
+#### remodel flags ####
+-constraints:cst_file design.csts
+-remodel:blueprint design.blueprint
+-use_clusters false
+-generic_aa V
+-repeat_structure 4
+-remodel:quick_and_dirty
+-preserve_header
+-chain A
+-picking_old_max_score 1
+-remodel:design:no_design
+-remodel:cstfilter 100000
+-remodel:staged_sampling true
+-remodel:use_same_length_fragments false
+-start_w_ideal_helices
+-sample_over_loops
+-show_simulation_in_pymol 0
+-indexed_structure_store:fragment_threshold_distance 0.4
+
+-remodel:no_jumps
+#--motifs
+-score:max_motif_per_res 3.0
+-score:ignore_terminal_ss_elements 3
+-ignore_terminal_ss_elements 3
+

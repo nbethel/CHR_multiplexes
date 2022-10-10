@@ -1,0 +1,4 @@
+python genTasks.py
+#VMD needs to be installed and provided for rearrange_cyc.py to run. Provide the path to the executable in this script
+sbatch -a 1-$(cat repack_tasks2 | wc -l) runTasks.sub
+python score_scanner.py

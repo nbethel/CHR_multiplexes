@@ -1,0 +1,7 @@
+-no_his_his_pairE
+-indexed_structure_store:fragment_store /net/databases/VALL_clustered/connect_chains/ss_grouped_vall_helix_shortLoop.h5
+-no_optH false
+-flip_HNQ
+-lazy_ig false
+-quasisymmetry False
+-use_truncated_termini true

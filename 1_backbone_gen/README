@@ -1,0 +1,3 @@
+python twoHelix_generator.py
+sbatch -a 1-$(cat two_helix_tasks | wc -l) genBB.sh
+python verify_csts.py

@@ -1,0 +1,182 @@
+<ROSETTASCRIPTS>
+##############################################
+# ScoreFunctions
+# Be sure to use this flag:-use_bicubic_interpolation
+##############################################
+<SCOREFXNS>
+    <ScoreFunction name="sfxn_cstWt0" weights="beta" symmetric="0">
+        <Reweight scoretype="res_type_constraint" weight="0"/>
+        <Reweight scoretype="dihedral_constraint" weight="2"/>
+    </ScoreFunction>
+    <ScoreFunction name="sfxn_cstWt1" weights="beta" symmetric="0">
+        <Reweight scoretype="res_type_constraint" weight="1"/>
+        <Reweight scoretype="dihedral_constraint" weight="2"/>
+    </ScoreFunction>
+    <ScoreFunction name="ref_cart" weights="beta_cart" symmetric="1">
+        <Reweight scoretype="atom_pair_constraint" weight="1.0" />
+		<Reweight scoretype="dihedral_constraint" weight="2"/>
+    </ScoreFunction>
+    <ScoreFunction name="cen" weights="cen_std"/>
+    <ScoreFunction name="beta_symm" weights="beta" symmetric="0">
+        <Reweight scoretype="aa_composition" weight="3.0" />
+        <Reweight scoretype="res_type_constraint" weight="2.0"/>
+	<Reweight scoretype="atom_pair_constraint" weight="1.0" />
+        <Reweight scoretype="dihedral_constraint" weight="1.0"/>
+
+</ScoreFunction>
+    <ScoreFunction name="beta_symm_cart" weights="beta_cart" symmetric="1">
+        <Reweight scoretype="aa_composition" weight="3.0" />
+        <Reweight scoretype="res_type_constraint" weight="2.0"/>
+        <Reweight scoretype="atom_pair_constraint" weight="0.0" />
+        <Reweight scoretype="dihedral_constraint" weight="0"/>
+
+    </ScoreFunction>
+</SCOREFXNS>
+##############################################
+# Task Operations
+##############################################
+<RESIDUE_SELECTORS>
+	<Layer name="coreN" select_core="true" select_boundary="false" select_surface="false" ball_radius="2.0" use_sidechain_neighbors="true" core_cutoff="3.4"/>
+        <Layer name="boundaryN" select_core="false" select_boundary="true" select_surface="false" ball_radius="2.0" use_sidechain_neighbors="true" core_cutoff="3.4"/>
+        <Layer name="surfaceN" select_core="false" select_boundary="false" select_surface="true" ball_radius="2.0" use_sidechain_neighbors="true" core_cutoff="3.4"/>
+        <Layer name="coreN2" select_core="true" select_boundary="false" select_surface="false" ball_radius="2.0" use_sidechain_neighbors="true" core_cutoff="4.8"/>
+        <Layer name="boundaryN2" select_core="false" select_boundary="true" select_surface="false" ball_radius="2.0" use_sidechain_neighbors="true" core_cutoff="4.8"/>
+        <Layer name="surfaceN2" select_core="false" select_boundary="false" select_surface="true" ball_radius="2.0" use_sidechain_neighbors="true" core_cutoff="4.8"/>
+	<Layer name="core" select_core="true" select_boundary="false" select_surface="false" ball_radius="2.0" use_sidechain_neighbors="false" core_cutoff="20.0" surface_cutoff="36.0" />
+	<Layer name="boundary" select_core="false" select_boundary="true" select_surface="false" ball_radius="2.0" use_sidechain_neighbors="false" core_cutoff="20.0" surface_cutoff="36.0" />
+	<Layer name="surface" select_core="false" select_boundary="false" select_surface="true" ball_radius="2.0" use_sidechain_neighbors="false" core_cutoff="20.0" surface_cutoff="36.0" />
+    <SecondaryStructure name="entire_helix" ss="H" overlap="0" minH="3" minE="3" use_dssp="true" include_terminal_loops="false" />
+    <SecondaryStructure name="sheet" ss="E" overlap="0" minH="3" minE="3" use_dssp="true" include_terminal_loops="false" />
+    <SecondaryStructure name="entire_loop"  ss="L" overlap="0" minH="3" minE="3" use_dssp="true" include_terminal_loops="true" />
+    <And name="helix_cap" selectors="entire_loop">
+        <PrimarySequenceNeighborhood lower="1" upper="0" selector="entire_helix"/>
+    </And>
+    <And name="helix_start" selectors="entire_helix">
+	    <PrimarySequenceNeighborhood lower="0" upper="1" selector="helix_cap"/>
+    </And>
+    <And name="helix" selectors="entire_helix">
+        <Not selector="helix_start"/>
+    </And>
+    <And name="loop" selectors="entire_loop">
+        <Not selector="helix_cap"/>
+    </And>
+    <And name="core_helix" selectors="core,entire_helix" />	
+    <Chain name="mid" chains="A,B,C,D,E"/>
+    <Not name="notmid" selector="mid"/>
+
+	    <Not name="notHelix" selector="entire_helix"/>
+</RESIDUE_SELECTORS>
+<TASKOPERATIONS>
+    <InitializeFromCommandline name="IFC"/>
+    <IncludeCurrent name="IC"/>
+    <LimitAromaChi2 name="aroChi" chi2max="110" chi2min="70" include_trp="True" />
+    <DesignRestrictions name="layer_design">
+        <Action selector_logic="surface AND helix_start"    aas="EHKPQR"/>
+        <Action selector_logic="surface AND helix"          aas="EHKQR"/>
+        <Action selector_logic="surface AND sheet"          aas="DEHKNQRST"/>
+        <Action selector_logic="surface AND loop"           aas="DEGHKNPQRST"/>
+        <Action selector_logic="boundary AND helix_start"   aas="ADEIKLMNPQRSTVWY"/>
+        <Action selector_logic="boundary AND helix"         aas="ADEIKLMNQRSTVWY"/>
+        <Action selector_logic="boundary AND sheet"         aas="ADEFGIKLMNPQRSTVWY"/>
+        <Action selector_logic="boundary AND loop"          aas="ADEFGIKLNPQRSTVWY"/>
+        <Action selector_logic="core AND helix_start"       aas="AFILMPV"/>
+        <Action selector_logic="core AND helix"             aas="AFILMV"/>
+        <Action selector_logic="core AND sheet"             aas="FILV"/>
+        <Action selector_logic="core AND loop"              aas="AFGILMPV"/>
+        <Action selector_logic="helix_cap"                  aas="DNST"/>
+    </DesignRestrictions>
+    <DesignRestrictions name="layer_designN">
+        <Action selector_logic="surfaceN AND helix_start"    aas="EHKPQR"/>
+        <Action selector_logic="surfaceN AND helix"          aas="EHKQR"/>
+        <Action selector_logic="surfaceN AND sheet"          aas="DEHKNQRST"/>
+        <Action selector_logic="surfaceN AND loop"           aas="DEGHKNPQRST"/>
+        <Action selector_logic="boundaryN AND helix_start"   aas="ADEIKLMNPQRSTVWY"/>
+        <Action selector_logic="boundaryN AND helix"         aas="ADEIKLMNQRSTVWY"/>
+        <Action selector_logic="boundaryN AND sheet"         aas="ADEFGIKLMNPQRSTVWY"/>
+        <Action selector_logic="boundaryN AND loop"          aas="ADEFGIKLNPQRSTVWY"/>
+        <Action selector_logic="coreN AND helix_start"       aas="AILPV"/>
+        <Action selector_logic="coreN AND helix"             aas="AILV"/>
+        <Action selector_logic="coreN AND sheet"             aas="ILV"/>
+        <Action selector_logic="coreN AND loop"              aas="AFGILMPV"/>
+        <Action selector_logic="helix_cap"                  aas="DNST"/>
+</DesignRestrictions>
+    <DesignRestrictions name="layer_designN2">
+        <Action selector_logic="surfaceN2 AND helix_start"    aas="EHKPQR"/>
+        <Action selector_logic="surfaceN2 AND helix"          aas="EHKQR"/>
+        <Action selector_logic="surfaceN2 AND sheet"          aas="DEHKNQRST"/>
+        <Action selector_logic="surfaceN2 AND loop"           aas="DEGHKNPQRST"/>
+        <Action selector_logic="boundaryN2 AND helix_start"   aas="ADEIKLMNPQRSTVWY"/>
+        <Action selector_logic="boundaryN2 AND helix"         aas="ADEIKLMNQRSTVWY"/>
+        <Action selector_logic="boundaryN2 AND sheet"         aas="ADEFGIKLMNPQRSTVWY"/>
+        <Action selector_logic="boundaryN2 AND loop"          aas="ADEFGIKLNPQRSTVWY"/>
+        <Action selector_logic="coreN2 AND helix_start"       aas="AFILMPV"/>
+        <Action selector_logic="coreN2 AND helix"             aas="AFILMV"/>
+        <Action selector_logic="coreN2 AND sheet"             aas="FILV"/>
+        <Action selector_logic="coreN2 AND loop"              aas="AFGILMPV"/>
+        <Action selector_logic="helix_cap"                  aas="DNST"/>
+    </DesignRestrictions>
+    <OperateOnResidueSubset name="restrictCore" selector="core">
+        <RestrictToRepackingRLT/>
+    </OperateOnResidueSubset>
+        <ExtraRotamersGeneric name="ex1" ex1="1"/>
+	<ExtraRotamersGeneric name="ex1_ex2" ex1="1" ex2="1"/>
+	<ProteinProteinInterfaceUpweighter name="up_ppi" interface_weight="3.0"/>
+	<ProteinProteinInterfaceUpweighter name="up_ppi2" interface_weight="1.5"/>
+		     <OperateOnCertainResidues name="aromatic_apolar">
+       <NoResFilter>
+         <ResidueType aromatic="1" apolar="1" charged="0" polar="0"/>
+       </NoResFilter>
+       <PreventRepackingRLT/>
+     </OperateOnCertainResidues>
+	<OperateOnResidueSubset name="preventNotHelix" selector="notHelix">
+            <PreventRepackingRLT/>
+        </OperateOnResidueSubset>
+</TASKOPERATIONS>
+ ##############################################
+  # Underlying relax/repack/min/pack movers
+  ##############################################
+  <MOVERS>
+	      <DeleteRegionMover name="delchains"
+                   residue_selector="notmid" />
+</MOVERS>
+###############################################
+# Filters
+###############################################
+<FILTERS>
+	        <ClashCheck name="clasher" clash_dist="3.0"
+        cutoff="50"
+         confidence="1.0" />
+    <TotalSasa name="tsasa" report_per_residue_sasa="1" threshold="0" upper_threshold="1000000000000000" />
+    <TotalSasa name="tsasa2" report_per_residue_sasa="1" threshold="0" upper_threshold="1000000000000000" />
+    <ScoreType name="total_score" scorefxn="beta_symm" score_type="total_score" threshold="0" confidence="0" />
+    <BuriedUnsatHbonds name="burUns" report_all_heavy_atom_unsats="true" scorefxn="beta_symm" ignore_surface_res="false" print_out_info_to_pdb="true" atomic_depth_selection="5.5" burial_cutoff="1000" use_ddG_style="false" burial_cutoff_apo="0.2" dalphaball_sasa="true" probe_radius="1.1" confidence="0" />
+    <ResidueCount name="nres" confidence="0" />
+    <CalculatorFilter name="score_norm" confidence="0" equation="SCORE/NRES" threshold="3" >
+        <Var name="SCORE" filter="total_score" />
+        <Var name="NRES" filter_name="nres" />
+    </CalculatorFilter>
+	    <AtomicContactCount name="cc_chain" partition="chain"  normalize_by_sasa="0" task_operations="aromatic_apolar,preventNotHelix" confidence="0"/>
+	    <AtomicContactCount name="cc_chain2" partition="chain"  normalize_by_sasa="0" task_operations="aromatic_apolar,preventNotHelix" confidence="0"/>
+</FILTERS>
+
+<APPLY_TO_POSE>
+</APPLY_TO_POSE>
+##############################################
+#  main
+##############################################
+<PROTOCOLS>
+	Add filter_name="tsasa"/>
+	Add filter_name="clasher"/>
+	Add mover_name="delchains"/>
+	Add filter_name="tsasa2"/>
+    Add filter_name="ddg1"/>
+    Add filter_name="ddg2"/>
+	Add filter_name="ddg3"/>
+	<Add filter_name="cc_chain" report_at_end="false"/>
+	ScoreType name="total_score" scorefxn="beta_symm" score_type="total_score" threshold="0" confidence="0" />
+	Add mover_name="delchains"/>
+	Add filter_name="cc_chain2"/>
+	<Add filter_name="burUns"/>
+    Add filter_name="holes"/>
+</PROTOCOLS>
+</ROSETTASCRIPTS>

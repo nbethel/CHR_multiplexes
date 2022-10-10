@@ -1,0 +1,6 @@
+source activate pyrosetta
+python get_sel.py
+python maker.py
+python chain.py
+python make_tie.py
+./run.sh

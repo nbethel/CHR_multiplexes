@@ -1,0 +1,13 @@
+#!/bin/bash
+#SBATCH -p cpu
+#SBATCH -t 00:30:00
+#SBATCH --mem=6g
+#SBATCH -o log
+LINE=$(sed -n "$SLURM_ARRAY_TASK_ID"p repack_tasks2)
+#cd $LINE
+
+#cd $SLURM_ARRAY_TASK_ID 
+echo "${LINE}" | bash
+#sbatch -a 1-$(cat repack_tasks2 | wc -l) runTasks.sub
+
+

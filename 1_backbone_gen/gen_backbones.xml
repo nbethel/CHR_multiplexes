@@ -1,0 +1,32 @@
+<ROSETTASCRIPTS>
+<TASKOPERATIONS>
+</TASKOPERATIONS>
+<SCOREFXNS>
+	<ScoreFunction name="sfn_centroid" weights="../abinitio_remodel_cen.wts"/>
+    <ScoreFunction name="sfn_motif" weights="empty">
+        <Reweight scoretype="cen_pair_motifs" weight="1"/>
+    </ScoreFunction>
+    <ScoreFunction name="sfn_motif_degree" weights="empty">
+        <Reweight scoretype="cen_pair_motif_degree" weight="1"/>
+    </ScoreFunction>
+</SCOREFXNS>
+<FILTERS>
+    <Worst9mer name="worst9mer_h" threshold="0.15" only_helices="true" confidence="1"/>
+    <ScoreType name="motif_score" scorefxn="sfn_motif" threshold="-3.5" confidence="1" />
+    <ScoreType name="motif_degree_score" scorefxn="sfn_motif_degree" threshold="0" confidence="0" />
+</FILTERS>
+<MOVERS>
+    <FixAllLoopsMover name="fix_all" residue_range="1,90"/>
+    <RepeatPropagationMover name="propagate"  start_pose_numb_repeats="4" extract_repeat_info_from_pose="true" numb_repeats="12"/>
+    <MakePolyX name="polyV" aa="VAL" keep_pro="0"  keep_gly="0" keep_disulfide_cys="0"/>
+    <RemodelMover name="remodel_mover" blueprint="design.blueprint"/>
+</MOVERS>
+<PROTOCOLS>
+    <Add mover_name="remodel_mover"/>
+    <Add mover_name="fix_all"/>
+    <Add mover_name="propagate"/>
+    <Add filter_name="worst9mer_h"/>
+    <Add filter_name="motif_score"/>
+    <Add filter_name="motif_degree_score"/>
+</PROTOCOLS>
+</ROSETTASCRIPTS>

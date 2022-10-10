@@ -1,0 +1,4 @@
+python findAxis.py
+ls h*pdb > pdblist
+/software/rosetta/latest/bin/rosetta_scripts.hdf5.linuxgccrelease  -nstruct 1 -out:nooutput -out:prefix rescored_ -parser:protocol rescore.xml -l pdblist
+python cleaner.py

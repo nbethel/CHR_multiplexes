@@ -1,0 +1,7 @@
+vdw 1.0
+omega 1.0
+hbond_sr_bb 1.0
+rama 0.5
+cen_pair_motif_degree 10.0
+cen_pair_motifs 7.0
+atom_pair_constraint 2.0

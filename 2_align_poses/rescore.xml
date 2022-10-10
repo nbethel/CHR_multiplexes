@@ -1,0 +1,35 @@
+<ROSETTASCRIPTS>
+<TASKOPERATIONS>
+</TASKOPERATIONS>
+<SCOREFXNS>
+<ScoreFunction name="r15" weights="ref2015" symmetric="true"/>
+
+</SCOREFXNS>
+<FILTERS>
+	<ClashCheck name="clasher" clash_dist="3.0"
+        cutoff="10" 
+         confidence="1.0" />
+	<ScoreType name="scfilt" scorefxn="r15" threshold="6528.0"/>
+	</FILTERS>
+<RESIDUE_SELECTORS>
+                <Chain name="allRes" chains="A,B,C,D,E,F,G,H,I,J,K,L" />
+</RESIDUE_SELECTORS>
+
+<TASKOPERATIONS>
+    <OperateOnResidueSubset name="ALA" selector="allRes">
+        <RestrictAbsentCanonicalAASRLT aas="A"/>
+    </OperateOnResidueSubset>
+
+</TASKOPERATIONS>
+<MOVERS>
+	<DetectSymmetry name="detect" />
+      <MakePolyX name="polyA" aa="ALA" keep_pro="0"  keep_gly="0" keep_disulfide_cys="0"/>
+
+</MOVERS>
+<PROTOCOLS>
+	<Add mover_name="polyA"/>
+	<Add mover_name="detect"/>	
+	<Add filter_name="clasher"/>
+</PROTOCOLS>
+<OUTPUT scorefxn="r15"/>
+</ROSETTASCRIPTS>

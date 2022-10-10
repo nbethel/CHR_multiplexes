@@ -1,0 +1,205 @@
+<ROSETTASCRIPTS>
+##############################################
+# ScoreFunctions
+# Be sure to use this flag:-use_bicubic_interpolation
+##############################################
+<SCOREFXNS>
+    <ScoreFunction name="sfxn_nocst" weights="beta_nov16" symmetric="1"/>
+    <ScoreFunction name="sfxn_cstWt0" weights="beta_nov16" symmetric="1">
+        <Reweight scoretype="res_type_constraint" weight="2"/>
+	<Reweight scoretype="dihedral_constraint" weight="2"/>
+	<Reweight scoretype="coordinate_constraint" weight="2"/>
+        <Set aa_composition_setup_file="../disfavor_polyala.comp" />
+        <Reweight scoretype="aa_composition" weight="3.0" />
+    </ScoreFunction>
+    <ScoreFunction name="sfxn_cstWt1" weights="beta_nov16" symmetric="0">
+        <Reweight scoretype="res_type_linking_constraint" weight="1"/>
+        <Reweight scoretype="res_type_constraint" weight="2"/>
+        <Reweight scoretype="dihedral_constraint" weight="2"/>
+	<Reweight scoretype="coordinate_constraint" weight="2"/>
+        <Set aa_composition_setup_file="../disfavor_polyala.comp" />
+        <Reweight scoretype="atom_pair_constraint" weight="1.0" />
+        <Reweight scoretype="aa_composition" weight="3.0" />
+    </ScoreFunction>
+    <ScoreFunction name="soft_cstWt1" weights="beta_nov16_soft" symmetric="1">
+        <Reweight scoretype="res_type_constraint" weight="2"/>
+	<Reweight scoretype="dihedral_constraint" weight="2"/>
+	<Reweight scoretype="coordinate_constraint" weight="2"/>
+        <Set aa_composition_setup_file="../disfavor_polyala.comp" />
+    </ScoreFunction>
+    <ScoreFunction name="up_ele" weights="beta_nov16" symmetric="1">
+            <Reweight scoretype="aa_composition" weight="3.0" />
+        <Reweight scoretype="res_type_constraint" weight="2"/>
+	<Reweight scoretype="dihedral_constraint" weight="2"/>
+		<Reweight scoretype="coordinate_constraint" weight="2"/>
+        <Reweight scoretype="fa_elec" weight="1.4"/>
+        <Reweight scoretype="hbond_sc" weight="2.0" />
+        <Set aa_composition_setup_file="../disfavor_polyala.comp" />
+    </ScoreFunction>
+    <ScoreFunction name="ref_cart" weights="beta_nov16_cart" symmetric="1">
+	    <Reweight scoretype="aa_composition" weight="3.0" />
+		    <Reweight scoretype="coordinate_constraint" weight="2"/>
+            <Reweight scoretype="res_type_constraint" weight="2.0"/>
+        <Reweight scoretype="atom_pair_constraint" weight="1.0" />
+                <Reweight scoretype="dihedral_constraint" weight="2.0"/>
+         <Set aa_composition_setup_file="../disfavor_polyala.comp" />
+        </ScoreFunction>
+        <ScoreFunction name="beta16" weights="beta_nov16" symmetric="1">
+            <Reweight scoretype="aa_composition" weight="3.0" />
+                    <Reweight scoretype="coordinate_constraint" weight="2"/>
+            <Reweight scoretype="res_type_constraint" weight="2.0"/>
+        <Reweight scoretype="atom_pair_constraint" weight="1.0" />
+                <Reweight scoretype="dihedral_constraint" weight="2.0"/>
+         <Set aa_composition_setup_file="../disfavor_polyala.comp" />
+        </ScoreFunction>
+
+    <ScoreFunction name="cen" weights="cen_std"/>
+</SCOREFXNS>
+##############################################
+# Task Operations
+##############################################
+<RESIDUE_SELECTORS>
+	<Layer name="core" select_core="true" select_boundary="false" select_surface="false" ball_radius="2.0" use_sidechain_neighbors="true" surface_cutoff="2.7" core_cutoff="4.9"  />
+<Layer name="boundary" select_core="false" select_boundary="true" select_surface="false" ball_radius="2.0" use_sidechain_neighbors="true" surface_cutoff="2.7" core_cutoff="4.9" />
+    <Layer name="surface" select_core="false" select_boundary="false" select_surface="true" ball_radius="2.0" use_sidechain_neighbors="true" surface_cutoff="2.7" core_cutoff="4.9" />
+    <SecondaryStructure name="entire_helix" ss="H" overlap="0" minH="3" minE="3" use_dssp="true" include_terminal_loops="false" />
+    <SecondaryStructure name="sheet" ss="E" overlap="0" minH="3" minE="3" use_dssp="true" include_terminal_loops="false" />
+    <SecondaryStructure name="entire_loop"  ss="L" overlap="0" minH="3" minE="3" use_dssp="true" include_terminal_loops="true" />
+    <And name="helix_cap" selectors="entire_loop">
+        <PrimarySequenceNeighborhood lower="1" upper="0" selector="entire_helix"/>
+    </And>
+    <And name="helix_start" selectors="entire_helix">
+        <PrimarySequenceNeighborhood lower="0" upper="1" selector="helix_cap"/>
+    </And>
+    <And name="helix" selectors="entire_helix">
+        <Not selector="helix_start"/>
+    </And>
+    <And name="loop" selectors="entire_loop">
+        <Not selector="helix_cap"/>
+    </And>
+    <And name="core_helix" selectors="core,entire_helix" />
+
+
+    <Not name="not_core" selector="core" />
+    <Not name="not_boundary" selector="boundary" />
+    <Not name="not_surface" selector="surface" />
+    Index name="joint" resnums="%%s2c%%-%%e2c%%,%%s3c%%-%%e3c%%,1-3,%%s4c%%-%%e4c%%" />
+    Index name="joint" resnums="%%s2c%%-%%e2c%%,%%s3c%%-%%e3c%%,%%s4c%%-%%e4c%%" />
+    <Index name="joint1" resnums="%%s1c%%A-%%e1c%%A" />
+    <Index name="joint2" resnums="1A-2A" />
+    <Or name="joint" selectors="joint1,joint2"/>
+    <Neighborhood name="around_joint" selector="joint" distance="6.0" />
+    <Not name="not_around_joint" selector="around_joint"/>
+    <Not name="not_joint" selector="joint" />
+	    <Chain name="notmid" chains="B,C,D,E,K,L,M"/>
+</RESIDUE_SELECTORS>
+<TASKOPERATIONS>
+    <InitializeFromCommandline name="IFC"/>
+    <IncludeCurrent name="IC"/>
+    <LimitAromaChi2 name="aroChi" chi2max="110" chi2min="70" include_trp="True" />
+    <DesignRestrictions name="layer_design">
+        <Action selector_logic="surface AND helix_start"    aas="EHKPQR"/>
+        <Action selector_logic="surface AND helix"          aas="EHKQR"/>
+        <Action selector_logic="surface AND sheet"          aas="DEHKNQRST"/>
+        <Action selector_logic="surface AND loop"           aas="DEGHKNPQRST"/>
+        <Action selector_logic="boundary AND helix_start"   aas="ADEIKLNPQRSTVWY"/>
+        <Action selector_logic="boundary AND helix"         aas="ADEIKLNQRSTVWY"/>
+        <Action selector_logic="boundary AND sheet"         aas="ADEFGIKLNPQRSTVWY"/>
+        <Action selector_logic="boundary AND loop"          aas="ADEFGIKLNPQRSTVWY"/>
+        <Action selector_logic="core AND helix_start"       aas="AFILPVWY"/>
+        <Action selector_logic="core AND helix"             aas="AFILVWY"/>
+        <Action selector_logic="core AND sheet"             aas="FILVWY"/>
+        <Action selector_logic="core AND loop"              aas="AFGILPVWY"/>
+        <Action selector_logic="helix_cap"                  aas="DNST"/>
+    </DesignRestrictions>
+                <OperateOnResidueSubset name="design_core" selector="not_core">
+                    <RestrictToRepackingRLT/>
+                </OperateOnResidueSubset>
+                <OperateOnResidueSubset name="design_bound" selector="not_boundary">
+                    <RestrictToRepackingRLT/>
+                </OperateOnResidueSubset>
+                <OperateOnResidueSubset name="design_surface" selector="not_surface">
+                    <RestrictToRepackingRLT/>
+                </OperateOnResidueSubset>
+                <OperateOnResidueSubset name="restrict_surface" selector="surface">
+                    <RestrictToRepackingRLT/>
+                </OperateOnResidueSubset>
+    <OperateOnResidueSubset name="restrictCore" selector="core">
+        <RestrictToRepackingRLT/>
+    </OperateOnResidueSubset>
+    <ExtraRotamersGeneric name="ex1" ex1="1" />
+    <ExtraRotamersGeneric name="ex1_ex2" ex1="1" ex2="1"/>
+     RestrictResiduesToRepacking name="RJ" residues="1-39,44-80,84-"/>
+    <OperateOnResidueSubset name="restrictJoint" selector="joint">
+                        <RestrictToRepackingRLT/>
+                </OperateOnResidueSubset>
+			        <OperateOnResidueSubset name="preventJoint" selector="not_around_joint">
+                        <RestrictToRepackingRLT/>
+                </OperateOnResidueSubset>
+</TASKOPERATIONS>
+###############################################
+# Filters
+###############################################
+<FILTERS>
+    <Holes name="holes" confidence="0" threshold="100"/>  remember: -holes:dalphaball ~/scripts/DAlphaBall.gcc
+    BuriedUnsatHbonds name="burUns" jump_number="0" cutoff="1000" confidence="0" scorefxn="sfxn_lowCstWt"/>
+    <BuriedUnsatHbonds name="burUns" scorefxn="sfxn_cstWt0" use_sc_neighbors="false" use_reporter_behavior="true" report_sc_heavy_atom_unsats="true" 
+        ignore_surface_res="true" print_out_info_to_pdb="false" confidence="0" residue_selector="core_helix"/>
+    <BuriedUnsatHbonds name="uhb" residue_selector="core_helix" report_all_heavy_atom_unsats="true" scorefxn="hard" ignore_surface_res="false" print_out_info_to_pdb="true" atomic_depth_selection="5.5" burial_cutoff="1000" use_ddG_style="true" burial_cutoff_apo="0.2" dalphaball_sasa="true" probe_radius="1.1" confidence="0" />
+
+    <ScoreType name="total_score" scorefxn="sfxn_nocst" score_type="total_score" threshold="0" confidence="0" />
+    <ResidueCount name="nres" confidence="0" />
+    <CalculatorFilter name="score_norm" confidence="0" equation="SCORE/NRES" threshold="-3.0" >
+        <Var name="SCORE" filter="total_score" />
+        <Var name="NRES" filter_name="nres" />
+    </CalculatorFilter>
+</FILTERS>
+ ##############################################
+  # Underlying relax/repack/min/pack movers
+  ##############################################
+  <MOVERS>
+	                <DeleteRegionMover name="delchains"
+				residue_selector="notmid" />
+		    <SetupForSymmetry name="detect" definition="helix.symm"
+            preserve_datacache="0" keep_pdb_info_labels="1" />
+DetectSymmetry name="detect" subunit_tolerance="0.1" plane_tolerance="0.1"/>
+    <MinMover name="hardmin_sconly" scorefxn="sfxn_cstWt1" jump="0" chi="1" bb="0" bondangle="0" bondlength="0" />
+    <FastDesign name="fastDesign" scorefxn="ref_cart" cartesian="1" repeats="2"  task_operations="IFC,IC,aroChi,restrictJoint,layer_design,ex1" relaxscript="InterfaceDesign2019" ramp_down_constraints="false"  bondangle="false" bondlength="false" min_type="lbfgs_armijo_nonmonotone">
+	   <MoveMap chi="1" bb="1" jump="0">
+	       <ResidueSelector chi="1" bb="0" selector="joint"/>
+               <ResidueSelector chi="1" bb="1" selector="not_joint"/>	       
+           </MoveMap> 
+   </FastDesign>
+     <AddConstraints name="add_csts" >
+        <CoordinateConstraintGenerator name="gen_my_csts"
+            residue_selector="not_joint" native="0" sidechain="0"/>
+    </AddConstraints>
+     <SymPackRotamersMover name="pack_cstWt1"    scorefxn="sfxn_cstWt1" task_operations="IFC,IC,aroChi,layer_design,restrictJoint,ex1_ex2"/>
+     <SymPackRotamersMover name="pack_cstWt1_2"  scorefxn="sfxn_cstWt1" task_operations="IFC,IC,aroChi,layer_design,ex1_ex2"/>
+    <StructProfileMover name="genProfile" add_csts_to_pose="1" consider_topN_frags="100" eliminate_background="0" ignore_terminal_residue="1" only_loops="0" RMSthreshold="0.60" outputProfile="true"/>
+    <ConstraintSetMover name="loadcstMSA" cst_file="MSAcst" add_constraints="1"/>
+</MOVERS>
+<APPLY_TO_POSE>
+</APPLY_TO_POSE>
+##############################################
+#  main
+##############################################
+<PROTOCOLS>
+    <Add mover_name="detect"/>
+    Add mover_name="ncs_bb"/>
+    Add mover_name="add_csts"/>
+    Add mover_name="ncs_chi"/>
+    <Add mover_name="genProfile"/>
+    <Add mover_name="loadcstMSA"/>
+    Add mover_name="pack_cstWt1"/>
+    <Add mover_name="pack_cstWt1_2"/>
+    <Add mover_name="fastDesign"/>
+    <Add mover_name="pack_cstWt1"/>
+    Add mover_name="pack_cstWt1_2"/>
+    Add mover_name="fastDesign"/>
+    Add mover_name="ncs_chi"/>
+    Add filter_name="score_norm"/>
+    Add filter_name="uhb"/>
+    Add filter_name="holes"/>
+</PROTOCOLS>
+</ROSETTASCRIPTS>

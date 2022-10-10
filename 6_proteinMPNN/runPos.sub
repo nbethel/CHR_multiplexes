@@ -1,0 +1,8 @@
+#!/bin/bash
+#SBATCH -p cpu
+#SBATCH --mem=2g
+#SBATCH -o task_log
+source activate pyrosetta 
+python get_sel.py  $SLURM_ARRAY_TASK_ID
+#python2 fitCylB.py $SLURM_ARRAY_TASK_ID
+#sbatch -a 1-120 runPos.sub
